@@ -16,6 +16,7 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
+import MapView, { Circle, Marker, Polygon,  } from 'react-native-maps';
 
 import {
   Colors,
@@ -24,6 +25,7 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import { markers, markersPolygon } from './constant/data';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -63,36 +65,39 @@ function App(): React.JSX.Element {
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+   
+      <MapView  
+      style={styles.map}
+
+  initialRegion={{
+    latitude: 28.609787,
+    longitude: 77.390188,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  }}
+>
+
+<Circle 
+  center={markers.coordinate}
+  radius={500}
+  fillColor='rgba(255, 0, 0, 0.5)'
+  />
+  <Polygon
+    coordinates={markersPolygon.map((marker) => ( {
+      latitude: marker.coordinate.latitude,
+      longitude: marker.coordinate.longitude
+    }))
+  }
+  />
+  {
+    markersPolygon.map(marker => (<Marker
+      coordinate={marker.coordinate}
+      key={marker.id}
+      title={marker.title}
+      description={marker.description}
+    />))
+  }
+</MapView>
   );
 }
 
@@ -112,6 +117,12 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
+  },map: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 });
 
