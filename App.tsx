@@ -16,7 +16,7 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-import MapView, { Circle, Marker, Polygon,  } from 'react-native-maps';
+import MapView, { Circle, Marker, Polygon, PROVIDER_GOOGLE,  } from 'react-native-maps';
 
 import {
   Colors,
@@ -66,63 +66,54 @@ function App(): React.JSX.Element {
 
   return (
    
-      <MapView  
-      style={styles.map}
-
-  initialRegion={{
-    latitude: 28.609787,
-    longitude: 77.390188,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  }}
->
-
-<Circle 
-  center={markers.coordinate}
-  radius={500}
-  fillColor='rgba(255, 0, 0, 0.5)'
-  />
-  <Polygon
-    coordinates={markersPolygon.map((marker) => ( {
-      latitude: marker.coordinate.latitude,
-      longitude: marker.coordinate.longitude
-    }))
-  }
-  />
-  {
-    markersPolygon.map(marker => (<Marker
+    <View style={styles.container}>
+     <MapView
+       provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+       style={styles.map}
+       region={{
+         latitude: markers.coordinate.latitude,
+         longitude:markers.coordinate.longitude,
+         latitudeDelta: 0.015,
+         longitudeDelta: 0.0121,
+       }}
+     >
+      
+    <Circle 
+      center={markers.coordinate}
+      radius={200}
+    />
+    <Polygon 
+       coordinates={markersPolygon.map(marker => (
+        {
+          latitude: marker.coordinate.latitude,
+          longitude:marker.coordinate.longitude
+        }
+       ))}
+    />
+    {
+      markersPolygon.map(marker => (
+        <Marker
       coordinate={marker.coordinate}
-      key={marker.id}
       title={marker.title}
       description={marker.description}
-    />))
-  }
-</MapView>
+    />
+      ))
+    }
+     </MapView>
+   </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    height: 800,
+    width: 400,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },map: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
 });
 
