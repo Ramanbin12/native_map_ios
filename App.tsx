@@ -45,6 +45,7 @@ function App(): React.JSX.Element {
     {
       markersPolygon.map(marker => (
         <Marker
+        key={marker.id}
       coordinate={marker.coordinate}
       title={marker.title}
       description={marker.description}
