@@ -10,7 +10,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import MapView, { Circle, Marker, Polygon, PROVIDER_GOOGLE,  } from 'react-native-maps';
+import MapView, { Circle, Marker, Polygon, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { markers, markersPolygon } from './constant/data';
 
@@ -20,7 +20,7 @@ function App(): React.JSX.Element {
    
     <View style={styles.container}>
      <MapView
-       provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+      provider={PROVIDER_GOOGLE}
        style={styles.map}
        region={{
          latitude: markers.coordinate.latitude,
@@ -59,15 +59,21 @@ function App(): React.JSX.Element {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
-    height: 800,
-    width: 400,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   map: {
-    ...StyleSheet.absoluteFillObject,
-  },
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
+  }
 });
 
 export default App;
