@@ -7,3 +7,8 @@ export interface DummyDataInterface{
       description: string,
       id: number,
 }
+
+export interface CoordinatesInterface{
+  latitude: number,
+  longitude: number,
+}

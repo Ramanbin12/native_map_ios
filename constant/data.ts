@@ -94,8 +94,6 @@ export const markers = {
           id: 3,
         },
       ];
-      
-    export const GOOGLE_MAPS_API_KEYS='gfgsadfgasfdgfsgdgsdgsdsgdfgs'
 
 
 
