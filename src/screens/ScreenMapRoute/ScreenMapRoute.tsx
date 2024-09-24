@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { markersPolygon } from '../../../constant/data';
 import MapViewDirections from 'react-native-maps-directions';
 import Geolocation from '@react-native-community/geolocation';
@@ -15,6 +15,7 @@ import ComponentBottomSheet from '../../components/ComponentBottomSheet/Componen
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import ComponentLocationDetails from './components/componentLocationDetails/ComponentLocationDetails';
 import RNConfig from 'react-native-config';
+
 const ScreenMapRoute = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [activeLocation, setActiveLocation] = useState(markersPolygon[0].id);
@@ -22,13 +23,14 @@ const ScreenMapRoute = () => {
     latitude: 0,
     longitude: 0,
   });
-  const [distances, setDistances] = useState([0, 0, 0]); 
+  const [distances, setDistances] = useState<number[]>([]); 
   const mapRef = useRef<MapView>(null);
+  const googleMapsApiKey = RNConfig.GOOGLE_MAPS_API_KEYS;
 
   useEffect(() => {
     requestLocationPermission();
   }, []);
-  const googleMapsApiKey = RNConfig.GOOGLE_MAPS_API_KEYS;
+
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(
@@ -94,6 +96,14 @@ const ScreenMapRoute = () => {
     bottomSheetRef.current?.present();
   }, []);
 
+  const handleDirectionsReady = (result: any, index: number) => {
+    setDistances((prev) => {
+      const newDistances = [...prev];
+      newDistances[index] = result.distance;
+      return newDistances;
+    });
+  };
+
   return (
     <View style={styles.container}>
       <MapView
@@ -114,7 +124,8 @@ const ScreenMapRoute = () => {
             pinColor="green"
           />
         )}
-        {markersPolygon.map((location) => (
+
+        {markersPolygon.map((location, index) => (
           <Marker
             key={location.id}
             coordinate={location.coordinate}
@@ -123,111 +134,47 @@ const ScreenMapRoute = () => {
             title={location.title}
           />
         ))}
-        {currentLocation && (
-          <>
-            {/* First Segment: Current Location to 1st Location */}
-            <MapViewDirections
-              origin={currentLocation}
-              destination={markersPolygon[0].coordinate}
-              apikey={googleMapsApiKey || ''}
-              strokeWidth={5}
-              strokeColor="blue"
-              onReady={(result) => {
-                setDistances((prev) => [result.distance, prev[1], prev[2]]);
-              }}
-            />
-            <Marker
-              coordinate={{
-                latitude:
-                  (currentLocation.latitude + markersPolygon[0].coordinate.latitude) /
-                  2,
-                longitude:
-                  (currentLocation.longitude +
-                    markersPolygon[0].coordinate.longitude) /
-                  2,
-              }}
-            >
-              <View style={styles.distanceLabel}>
-                <Text style={styles.distanceText}>
-                  {distances[0].toFixed(2)} km
-                </Text>
-              </View>
-            </Marker>
 
-            {/* Second Segment: 1st Location to 2nd Location */}
-            <MapViewDirections
-              origin={markersPolygon[0].coordinate}
-              destination={markersPolygon[1].coordinate}
-              apikey={googleMapsApiKey || ''}
-              strokeWidth={5}
-              strokeColor="blue"
-              onReady={(result) => {
-                setDistances((prev) => [prev[0], result.distance, prev[2]]);
-              }}
-            />
-            <Marker
-              coordinate={{
-                latitude:
-                  (markersPolygon[0].coordinate.latitude +
-                    markersPolygon[1].coordinate.latitude) /
-                  2,
-                longitude:
-                  (markersPolygon[0].coordinate.longitude +
-                    markersPolygon[1].coordinate.longitude) /
-                  2,
-              }}
-            >
-              <View style={styles.distanceLabel}>
-                <Text style={styles.distanceText}>
-                  {distances[1].toFixed(2)} km
-                </Text>
-              </View>
-            </Marker>
+        {currentLocation && markersPolygon.map((location, index) => {
+          const origin = index === 0 ? currentLocation : markersPolygon[index - 1].coordinate;
+          const destination = location.coordinate;
 
-            {/* Third Segment: 2nd Location to 3rd Location */}
-            <MapViewDirections
-              origin={markersPolygon[1].coordinate}
-              destination={markersPolygon[2].coordinate}
-              apikey={googleMapsApiKey || ''}
-              strokeWidth={5}
-              strokeColor="blue"
-              onReady={(result) => {
-                setDistances((prev) => [prev[0], prev[1], result.distance]);
-              }}
-            />
-            <Marker
-              coordinate={{
-                latitude:
-                  (markersPolygon[1].coordinate.latitude +
-                    markersPolygon[2].coordinate.latitude) /
-                  2,
-                longitude:
-                  (markersPolygon[1].coordinate.longitude +
-                    markersPolygon[2].coordinate.longitude) /
-                  2,
-              }}
-            >
-              <View style={styles.distanceLabel}>
-                <Text style={styles.distanceText}>
-                  {distances[2].toFixed(2)} km
-                </Text>
-              </View>
-            </Marker>
-          </>
-        )}
+          return (
+            <React.Fragment key={index}>
+              <MapViewDirections
+                origin={origin}
+                destination={destination}
+                apikey={googleMapsApiKey || ''}
+                strokeWidth={5}
+                strokeColor="blue"
+                onReady={(result) => handleDirectionsReady(result, index)}
+              />
+
+              <Marker
+                coordinate={{
+                  latitude: (origin.latitude + destination.latitude) / 2,
+                  longitude: (origin.longitude + destination.longitude) / 2,
+                }}
+              >
+                <View style={styles.distanceLabel}>
+                  <Text style={styles.distanceText}>
+                    {distances[index]?.toFixed(2) || 0} km
+                  </Text>
+                </View>
+              </Marker>
+            </React.Fragment>
+          );
+        })}
       </MapView>
-      {/* Display distances between segments */}
+
       <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>
-          Distance from Current to 1st: {distances[0].toFixed(2)} km
-        </Text>
-        <Text style={styles.infoText}>
-          Distance from 1st to 2nd: {distances[1].toFixed(2)} km
-        </Text>
-        <Text style={styles.infoText}>
-          Distance from 2nd to 3rd: {distances[2].toFixed(2)} km
-        </Text>
+        {distances.map((distance, index) => (
+          <Text key={index} style={styles.infoText}>
+            Distance {index === 0 ? 'from Current' : `from ${index} to ${index + 1}`}: {distance?.toFixed(2)} km
+          </Text>
+        ))}
       </View>
+
       <ComponentBottomSheet
         sheetRef={bottomSheetRef}
         snapPoints={['35%', '35%']}
