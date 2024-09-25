@@ -12,13 +12,15 @@ import {
 } from 'react-native';
 // import Map from './component/map/Map';
 import CameraComponent from './component/camera/Camera';
+import ScreenMapRoute from './src/screens/ScreenMapRoute/ScreenMapRoute';
 
 
 function App(): React.JSX.Element {
   return (
 
     <View style={styles.container}>
-     {/* <Map /> */}
+           <ScreenMapRoute/>
+
      <CameraComponent />
    </View>
   );

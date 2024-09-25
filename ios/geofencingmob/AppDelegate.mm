@@ -6,7 +6,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [GMSServices provideAPIKey:@"add_your_google_api_key"];
+  [GMSServices provideAPIKey:@"AIzaSyDd1BYGVzivBCOWi1_vhD2lEkqr6MIeb3Q"];
   self.moduleName = @"geofencingmob";
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
