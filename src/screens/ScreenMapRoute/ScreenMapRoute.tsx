@@ -14,7 +14,7 @@ import Geolocation from '@react-native-community/geolocation';
 import ComponentBottomSheet from '../../components/ComponentBottomSheet/ComponentBottomSheet';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import ComponentLocationDetails from './components/componentLocationDetails/ComponentLocationDetails';
-import RNConfig from 'react-native-config';
+import Config from 'react-native-config';
 
 const ScreenMapRoute = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -25,55 +25,62 @@ const ScreenMapRoute = () => {
   });
   const [distances, setDistances] = useState<number[]>([]); 
   const mapRef = useRef<MapView>(null);
-  const googleMapsApiKey = RNConfig.GOOGLE_MAPS_API_KEYS;
-
+  const googleMapsApiKey = Config.GOOGLE_MAPS_API_KEY;
   useEffect(() => {
     requestLocationPermission();
   }, []);
 
+
   const requestLocationPermission = async () => {
-    if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'Location Access Required',
-          message:
-            'This App needs to access your location to provide accurate route directions.',
-          buttonPositive: 'OK',
-          buttonNegative: 'Cancel',
-          buttonNeutral: 'Ask Me Later',
-        }
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        getCurrentLocation();
-      } else {
-        Alert.alert(
-          'Permission Denied',
-          'Location permission is required to use this feature.'
+    try {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Access Required',
+            message: 'This App needs to access your location to provide accurate route directions.',
+            buttonPositive: 'OK',
+            buttonNegative: 'Cancel',
+            buttonNeutral: 'Ask Me Later',
+          }
         );
+        console.log('granted', granted);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          getCurrentLocation();
+        } else {
+          console.log('Permission denied');
+          Alert.alert('Permission Denied', 'Location permission is required to use this feature.');
+        }
+      } else {
+        getCurrentLocation();
       }
-    } else {
-      getCurrentLocation();
+    } catch (err) {
+      console.warn(err);
+      Alert.alert('Error', 'Something went wrong while requesting location permission.');
     }
   };
-
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       (position) => {
+        console.log(position, 'position')
         const { latitude, longitude } = position.coords;
         setCurrentLocation({ latitude, longitude });
       },
       (error) => {
-        Alert.alert('Error', 'Unable to get your location');
-        console.log(error);
+        console.log("Geolocation error:", error.code, error.message);
+        Alert.alert(
+          'Error',
+          `Unable to get your location (${error.message}). Ensure location services are enabled.`
+        );
       },
       {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 10000,
+        enableHighAccuracy: false,
+        timeout: 15000, 
+        // maximumAge: 10000, 
       }
     );
   };
+  
 
   useEffect(() => {
     const selectedLocation = markersPolygon.find(
@@ -202,7 +209,6 @@ const styles = StyleSheet.create({
     bottom: 10,
     left: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    padding: 10,
     borderRadius: 5,
   },
   infoText: {
@@ -217,7 +223,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   distanceText: {
-    fontSize: 14,
+    fontSize: 8,
     fontWeight: 'bold',
   },
 });
