@@ -5,42 +5,47 @@
  * @format
  */
 
-import React from 'react';
-import {
-  StyleSheet,
-  View,
-} from 'react-native';
-// import Map from './component/map/Map';
-import CameraComponent from './component/camera/Camera';
+// import { GestureHandlerRootView } from "react-native-gesture-handler";
+// import ScreenMapRoute from "./src/screens/ScreenMapRoute/ScreenMapRoute";
 
 
-function App(): React.JSX.Element {
+
+// function App(): React.JSX.Element {
+
+
+// console.log('hello')
+//   return (
+//    <GestureHandlerRootView>
+
+//      <ScreenMapRoute/>
+//    </GestureHandlerRootView>
+//   );
+// }
+
+
+// export default App;
+
+
+// App.js
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import ScreenMapRoute from "./src/screens/ScreenMapRoute/ScreenMapRoute";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import ScreenGeo from './src/screens/ScreenGeo/ScreenGeo';
+
+// Create the Tab Navigator
+const Tab = createBottomTabNavigator();
+
+export default function App() {
   return (
-
-    <View style={styles.container}>
-     {/* <Map /> */}
-     <CameraComponent />
-   </View>
+    <NavigationContainer>
+         <GestureHandlerRootView>
+      <Tab.Navigator>
+        <Tab.Screen name="Screen One" component={ScreenMapRoute} />
+        <Tab.Screen name="Screen Two" component={ScreenGeo} />
+      </Tab.Navigator>
+      </GestureHandlerRootView>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  map: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-});
-
-export default App;
